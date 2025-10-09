@@ -28,6 +28,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      
+      - name: Initialize databases
+        run: python3 database.py
 
       - name: Run tests
         run: pytest
