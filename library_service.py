@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Tuple
 from database import (
     get_book_by_id, get_book_by_isbn, get_patron_borrow_count,
     insert_book, insert_borrow_record, update_book_availability,
-    update_borrow_record_return_date, get_all_books
+    update_borrow_record_return_date, get_all_books, get_patron_borrowed_books
 )
 
 def add_book_to_catalog(title: str, author: str, isbn: str, total_copies: int) -> Tuple[bool, str]:
@@ -105,9 +105,40 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     """
     Process book return by a patron.
     
-    TODO: Implement R4 as per requirements
+    Args:
+        patron_id: 6-digit library card ID
+        book_id: ID of the book to borrow
+    
+    Returns:
+        tuple: (success: bool, message: str)
     """
-    return False, "Book return functionality is not yet implemented."
+
+    # The system shall provide a return interface that includes:
+    # - Accepts patron ID and book ID as form parameters
+    # - Verifies the book was borrowed by the patron
+    # - Updates available copies and records return date
+    # - Calculates and displays any late fees owed
+
+    patron_current_books = get_patron_borrowed_books(patron_id)
+
+    borrowed_book = [record for record in patron_current_books if record['book_id'] == book_id]
+    if not borrowed_book:
+        return False, "You have not currently borrowed this book."
+    
+    # Update available copies
+    availability_success = update_book_availability(book_id, +1)
+    if not availability_success:
+        return False, "Database error occurred while updating book availability."
+    
+    # Update return date
+    return_date = datetime.now()
+    
+    # Record return date
+    update_return_date = update_borrow_record_return_date(patron_id, book_id, return_date)
+    if not update_return_date:
+        return False, "Database error occurred while updating book return date."
+    
+    return True, "You have successfully returned your book. Thank you!"
 
 def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     """
