@@ -130,7 +130,7 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
 
     patron_current_books = get_patron_borrowed_books(patron_id)
 
-    borrowed_book = [record for record in patron_current_books if record['book_id'] == book_id]
+    borrowed_book = [record for record in patron_current_books if record["book_id"] == book_id]
     if not borrowed_book:
         return False, "You have not currently borrowed this book."
     
@@ -153,15 +153,59 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     """
     Calculate late fees for a specific book.
     
-    TODO: Implement R5 as per requirements 
+    Args:
+        patron_id: 6-digit library card ID
+        book_id: ID of the book to borrow
     
-    
-    return { // return the calculated values
-        'fee_amount': 0.00,
-        'days_overdue': 0,
-        'status': 'Late fee calculation not implemented'
-    }
+    Returns:
+        dict: {"fee_amount": float, "days_overdue": int}
     """
+
+    # The system shall provide an API endpoint GET `/api/late_fee/<patron_id>/<book_id>` that includes the following.
+    # - Calculates late fees for overdue books based on:
+    #   - Books due 14 days after borrowing
+    #   - $0.50/day for first 7 days overdue
+    #   - $1.00/day for each additional day after 7 days
+    #   - Maximum $15.00 per book
+    # - Returns JSON response with fee amount and days overdue
+
+    patron_current_books = get_patron_borrowed_books(patron_id)
+
+    borrowed_book = [record for record in patron_current_books if record["book_id"] == book_id]
+
+    for book in borrowed_book:
+        overdue_status = book["is_overdue"]
+
+    # Check if book is overdue
+    if not overdue_status:
+        return {"fee_amount": 0.00, "days_overdue": 0}
+    
+    today = datetime.now()
+    for book in borrowed_book:
+        borrow_due_date = book["due_date"]
+
+    # Get number of days overdue
+    time_diff = today - borrow_due_date
+    num_days_overdue = time_diff.days
+
+    overdue_amt = 0.00
+
+    # $0.50/day for first 7 days overdue
+    if num_days_overdue <= 7:
+        overdue_amt = num_days_overdue * 0.50
+        return {"fee_amount": overdue_amt, "days_overdue": num_days_overdue}
+    
+    # $1.00/day for each additional day after 7 days
+    elif (num_days_overdue > 7):
+        overdue_amt = (7 * 0.50) + ((num_days_overdue - 7) * 1.00)
+        
+        if overdue_amt < 15.00:
+            return {"fee_amount": overdue_amt, "days_overdue": num_days_overdue}
+        
+        # Maximum $15.00 late fee
+        else:
+            return {"fee_amount": 15.00, "days_overdue": num_days_overdue}
+
 
 def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
     """
