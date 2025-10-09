@@ -3,6 +3,7 @@ Library Service Module - Business Logic Functions
 Contains all the core business logic for the Library Management System
 """
 
+import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from database import (
@@ -198,7 +199,7 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     # $1.00/day for each additional day after 7 days
     elif (num_days_overdue > 7):
         overdue_amt = (7 * 0.50) + ((num_days_overdue - 7) * 1.00)
-        
+
         if overdue_amt < 15.00:
             return {"fee_amount": overdue_amt, "days_overdue": num_days_overdue}
         
@@ -211,10 +212,43 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
     """
     Search for books in the catalog.
     
-    TODO: Implement R6 as per requirements
-    """
+    Args:
+        search_term: Entered search value
+        search_type: title, author, or isbn
     
-    return []
+    Returns:
+        list[dict]: [{"id": int, "title": str, "author": str, "isbn": str, "total_copies": int, "available_copies": int}]
+    """
+
+    # The system shall provide search functionality with the following parameters:
+    # - `q`: search term
+    # - `type`: search type (title, author, isbn)
+    # - Support partial matching for title/author (case-insensitive)
+    # - Support exact matching for ISBN
+    # - Return results in same format as catalog display
+    
+    all_books = get_all_books()
+
+    search_results = []
+
+    for b in all_books:
+
+        # Support exact matching for isbn
+        if search_type == "isbn":
+            if "isbn" in b and b["isbn"] == search_term:
+                search_results.append(b)
+
+        # Support partial matching for title (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
+        elif search_type == "title":
+            if "title" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["title"].lower()):
+                search_results.append(b)
+
+        # Support partial matching for author (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
+        elif search_type == "author":
+            if "author" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["author"].lower()):
+                search_results.append(b)
+
+    return search_results
 
 def get_patron_status_report(patron_id: str) -> Dict:
     """
