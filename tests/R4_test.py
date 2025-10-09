@@ -45,19 +45,19 @@ def test_return_book_update_available_copies():
     assert success1 == True
 
     # Borrow that book
-    success2, _ = borrow_book_by_patron("100007", 8)
+    success2, _ = borrow_book_by_patron("100007", 6)
     assert success2 == True
 
     # Borrow again to verify that the book (currently with 0 copies available) cannot be borrowed again
-    success3, _ = borrow_book_by_patron("100007", 8)
+    success3, _ = borrow_book_by_patron("100007", 6)
     assert success3 == False
 
     # Return that book
-    success4, _ = return_book_by_patron("100007", 8)
+    success4, _ = return_book_by_patron("100007", 6)
     assert success4 == True
 
     # Try to borrow again to see if available copies has updated after returning the book
-    success5, _ = borrow_book_by_patron("100007", 8)
+    success5, _ = borrow_book_by_patron("100007", 6)
     assert success5 == True
 
 def test_return_book_update_return_Date():

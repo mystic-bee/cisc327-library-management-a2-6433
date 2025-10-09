@@ -38,9 +38,18 @@ def add_book_to_catalog(title: str, author: str, isbn: str, total_copies: int) -
     if len(author.strip()) > 100:
         return False, "Author must be less than 100 characters."
     
+    if isbn is None:
+        return False, "ISBN cannot be None. Must only be comprised of digits in a string."
+    
     if len(isbn) != 13:
         return False, "ISBN must be exactly 13 digits."
     
+    if ' ' in isbn:
+        return False, "ISBN cannot have spaces."
+    
+    if not isbn.isdigit():
+        return False, "ISBN must be digits"
+
     if not isinstance(total_copies, int) or total_copies <= 0:
         return False, "Total copies must be a positive integer."
     
