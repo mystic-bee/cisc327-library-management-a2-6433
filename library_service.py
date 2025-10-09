@@ -3,14 +3,14 @@ Library Service Module - Business Logic Functions
 Contains all the core business logic for the Library Management System
 """
 
-import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from database import (
     get_book_by_id, get_book_by_isbn, get_patron_borrow_count,
     insert_book, insert_borrow_record, update_book_availability,
-    update_borrow_record_return_date, get_all_books, get_patron_borrowed_books
+    update_borrow_record_return_date, get_all_books, get_patron_borrowed_books, get_all_patron_record
 )
+import re
 
 def add_book_to_catalog(title: str, author: str, isbn: str, total_copies: int) -> Tuple[bool, str]:
     """
@@ -114,6 +114,7 @@ def borrow_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
 def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     """
     Process book return by a patron.
+    Implements R4 as per requirements  
     
     Args:
         patron_id: 6-digit library card ID
@@ -153,6 +154,7 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
 def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     """
     Calculate late fees for a specific book.
+    Implements R5 as per requirements  
     
     Args:
         patron_id: 6-digit library card ID
@@ -211,13 +213,14 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
 def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
     """
     Search for books in the catalog.
+    Implements R6 as per requirements  
     
     Args:
         search_term: Entered search value
         search_type: title, author, or isbn
     
     Returns:
-        list[dict]: [{"id": int, "title": str, "author": str, "isbn": str, "total_copies": int, "available_copies": int}]
+        List[Dict]: [{"id": int, "title": str, "author": str, "isbn": str, "total_copies": int, "available_copies": int}]
     """
 
     # The system shall provide search functionality with the following parameters:
@@ -253,7 +256,78 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
 def get_patron_status_report(patron_id: str) -> Dict:
     """
     Get status report for a patron.
+    Implements R7 as per requirements  
     
-    TODO: Implement R7 as per requirements
+    Args:
+        patron_id: 6-digit library card ID
+    
+    Returns:
+        Dict: {
+            "curr_borrowed_books": List[Dict]: {
+                "book_id": int,
+                "due_date": datetime
+                },
+
+            "total_late_fees_owed": float, 
+            
+            "num_books_currently_borrowed": int, 
+            
+            "borrowing_history" List[Dict]: {
+                "book_id": int,
+                "borrow_date": datetime,
+                "return_date": datetime
+                }
+            }
     """
-    return {}
+
+    # The system shall display patron status for a particular patron that includes the following: 
+
+    # - Currently borrowed books with due dates
+    # - Total late fees owed  
+    # - Number of books currently borrowed
+    # - Borrowing history
+
+    # **Note**: There should be a menu option created for showing the patron status in the main interface
+
+    patron_current_books = get_patron_borrowed_books(patron_id)
+
+    # Currently borrowed books with due dates
+    currently_borrowed = []
+    for books in patron_current_books:
+        currently_borrowed.append({
+            "book_id": books.get("book_id"),
+            "due_date": books.get("due_date")
+        })
+
+    # Number of books currently borrowed
+    num_currently_borrowed = len(currently_borrowed)
+
+    # Total late fees owed
+    book_fees = []
+    for id in currently_borrowed:
+        book_fees.append(calculate_late_fee_for_book(patron_id, id.get("book_id")))
+    
+    overdue_fees = []
+    for fee_amt in book_fees:
+        overdue_fees.append(fee_amt.get("fee_amount"))
+    
+    total_overdue = sum(overdue_fees)
+
+    patron_all_books = get_all_patron_record(patron_id)
+
+    # Borrowing history
+    borrowing_history = []
+    for item in patron_all_books:
+        borrowing_history.append({
+            "book_id": item.get("book_id"),
+            "borrow_date": item.get("borrow_date"),
+            "return_date": item.get("return_date")
+        })
+
+    return {
+        "curr_borrowed_books": currently_borrowed, 
+        "total_late_fees_owed": total_overdue, 
+        "num_books_currently_borrowed": num_currently_borrowed, 
+        "borrowing_history": borrowing_history
+    }
+

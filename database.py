@@ -130,6 +130,31 @@ def get_patron_borrowed_books(patron_id: str) -> List[Dict]:
     
     return borrowed_books
 
+def get_all_patron_record(patron_id: str) -> List[Dict]:
+    """Get all books ever borrowed by patron."""
+    conn = get_db_connection()
+    records = conn.execute('''
+        SELECT br.*, b.title, b.author 
+        FROM borrow_records br 
+        JOIN books b ON br.book_id = b.id 
+        WHERE br.patron_id = ?
+        ORDER BY br.borrow_date
+    ''', (patron_id,)).fetchall()
+    conn.close()
+    
+    borrow_record = []
+    for record in records:
+        borrow_record.append({
+            'book_id': record['book_id'],
+            'title': record['title'],
+            'author': record['author'],
+            'borrow_date': datetime.fromisoformat(record['borrow_date']),
+            'due_date': datetime.fromisoformat(record['due_date']),
+            'is_overdue': datetime.now() > datetime.fromisoformat(record['due_date'])
+        })
+    
+    return borrow_record
+
 def get_patron_borrow_count(patron_id: str) -> int:
     """Get the number of books currently borrowed by a patron."""
     conn = get_db_connection()
