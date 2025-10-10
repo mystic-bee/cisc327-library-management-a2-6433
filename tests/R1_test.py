@@ -1,7 +1,10 @@
 import pytest
 from library_service import add_book_to_catalog
 
-def test_add_book_invalid_total_copies_negative():
+from conftest import test_setup
+
+
+def test_add_book_invalid_total_copies_negative(test_setup):
     """
     Test adding a book with total copies being a negative integer.
     """
