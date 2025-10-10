@@ -23,11 +23,11 @@ def test_return_book_valid_input(test_setup):
     Test returning a book with valid input
     """
     # Borrow the book
-    success1, _ = borrow_book_by_patron("100005", 4)
+    success1, _ = borrow_book_by_patron("100005", 1)
     assert success1 == True
 
     # Return the book
-    success2, _ = return_book_by_patron("100005", 4)
+    success2, _ = return_book_by_patron("100005", 1)
     assert success2 == True
 
 def test_return_book_invalid_not_curr_borrowed(test_setup):
@@ -46,19 +46,19 @@ def test_return_book_update_available_copies(test_setup):
     assert success1 == True
 
     # Borrow that book
-    success2, _ = borrow_book_by_patron("100007", 6)
+    success2, _ = borrow_book_by_patron("100007", 4)
     assert success2 == True
 
     # Borrow again to verify that the book (currently with 0 copies available) cannot be borrowed again
-    success3, _ = borrow_book_by_patron("100007", 6)
+    success3, _ = borrow_book_by_patron("100007", 4)
     assert success3 == False
 
     # Return that book
-    success4, _ = return_book_by_patron("100007", 6)
+    success4, _ = return_book_by_patron("100007", 4)
     assert success4 == True
 
     # Try to borrow again to see if available copies has updated after returning the book
-    success5, _ = borrow_book_by_patron("100007", 6)
+    success5, _ = borrow_book_by_patron("100007", 4)
     assert success5 == True
 
 def test_return_book_update_return_date(test_setup):
@@ -70,14 +70,14 @@ def test_return_book_update_return_date(test_setup):
     add_book_to_catalog("See If Return Date Updates", "Tester McTester", "1234567890453", 50)
 
     # Borrow that book
-    success1 , _ = borrow_book_by_patron("100008", 7)
+    success1 , _ = borrow_book_by_patron("100008", 4)
     assert success1 == True
 
     # Return that book
-    success2, _ = return_book_by_patron("100008", 7)
+    success2, _ = return_book_by_patron("100008", 4)
     assert success2 == True
 
     # Check if return date has been updated
-    results = get_borrow_records("100008", 7)
+    results = get_borrow_records("100008", 4)
     assert len(results) == 1
     assert results[0]["return_date"] is not None

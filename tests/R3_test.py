@@ -1,12 +1,12 @@
 import pytest
-from library_service import borrow_book_by_patron
+from library_service import borrow_book_by_patron, add_book_to_catalog
 from conftest import test_setup
 
 def test_borrow_book_valid_input(test_setup):
     """
     Test borrowing a book with valid input
     """
-    success, message = borrow_book_by_patron("100000", 5)
+    success, message = borrow_book_by_patron("100000", 1)
 
     assert success == True
     assert "Successfully borrowed" in message
@@ -55,15 +55,17 @@ def test_borrow_book_invalid_exceeded_borrowing_limit(test_setup):
     """
     Test borrowing a book with patron that has exceeded the maximum borrowing limit of 5 books
     """
+    _, _ = add_book_to_catalog("Testing Borrowing Limits", "Test Author", "9876543210987", 10)
+
     # Borrow 5 books
-    _, _ = borrow_book_by_patron("100003", 5)
-    _, _ = borrow_book_by_patron("100003", 5)
-    _, _ = borrow_book_by_patron("100003", 5)
-    _, _ = borrow_book_by_patron("100003", 5)
-    _, _ = borrow_book_by_patron("100003", 5)
+    _, _ = borrow_book_by_patron("100003", 4)
+    _, _ = borrow_book_by_patron("100003", 4)
+    _, _ = borrow_book_by_patron("100003", 4)
+    _, _ = borrow_book_by_patron("100003", 4)
+    _, _ = borrow_book_by_patron("100003", 4)
 
     # Borrow 6th book --> should return False
-    success, message = borrow_book_by_patron("100003", 5)
+    success, message = borrow_book_by_patron("100003", 4)
 
     # BUG: Patron can borrow up to 6 books because of logic error in borrow_book_by_patron(), which means borrowing the 6th book returns True (hence the AssertionError).
     assert success == False

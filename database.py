@@ -82,6 +82,14 @@ def add_sample_data():
     
     conn.close()
 
+def drop_database_tables():
+    """ Drop database tables. """
+    conn = get_db_connection()
+    conn.execute("DROP TABLE IF EXISTS `books`")
+    conn.execute("DROP TABLE IF EXISTS `borrow_records`")
+    conn.commit()
+    conn.close()
+
 # Helper Functions for Database Operations
 
 def get_all_books() -> List[Dict]:
