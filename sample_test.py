@@ -2,15 +2,16 @@ import pytest
 from library_service import (
     add_book_to_catalog
 )
+from conftest import test_setup
 
-def test_add_book_valid_input():
+def test_add_book_valid_input(test_setup):
     """Test adding a book with valid input."""
     success, message = add_book_to_catalog("Test Book", "Test Author", "1234567890123", 5)
     
     assert success == True
     assert "successfully added" in message.lower()
 
-def test_add_book_invalid_isbn_too_short():
+def test_add_book_invalid_isbn_too_short(test_setup):
     """Test adding a book with ISBN too short."""
     success, message = add_book_to_catalog("Test Book", "Test Author", "123456789", 5)
     
