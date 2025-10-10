@@ -13,7 +13,7 @@ def test_add_book_invalid_total_copies_negative(test_setup):
     assert success == False
     assert "total copies" in message.lower()
 
-def test_add_book_invalid_title_too_long():
+def test_add_book_invalid_title_too_long(test_setup):
     """
     Test adding a book with title having more than 200 characters
     """
@@ -23,7 +23,7 @@ def test_add_book_invalid_title_too_long():
     assert "200 characters" in message.lower()
 
 # Test adding an author with more than 100 characters
-def test_add_book_invalid_author_too_long():
+def test_add_book_invalid_author_too_long(test_setup):
     """
     Test adding a book with an author having more than 100 characters.
     """
@@ -33,7 +33,7 @@ def test_add_book_invalid_author_too_long():
     assert "100 characters" in message.lower()
 
 # Test adding a duplicate ISBN (same ISBN, diff author name, title, total copies)
-def test_add_book_invalid_duplicate_isbn():
+def test_add_book_invalid_duplicate_isbn(test_setup):
     """
     Test adding a book with duplicate ISBN (same ISBN, diff author name, title, total copies).
     """
@@ -47,7 +47,7 @@ def test_add_book_invalid_duplicate_isbn():
     assert success == False
     assert "ISBN already exists" in message
 
-def test_add_book_invalid_isbn_input_none_type():
+def test_add_book_invalid_isbn_input_none_type(test_setup):
     """
     Test adding a book with invalid ISBN (None).
     """
@@ -58,7 +58,7 @@ def test_add_book_invalid_isbn_input_none_type():
     # BUG: No error handling for when IBSN input is given None. TypeError is thrown instead.ISBN should only be digits and should be a string.
     assert success == False
 
-def test_add_book_invalid_isbn_input_whitespace():
+def test_add_book_invalid_isbn_input_whitespace(test_setup):
     """
     Test adding a book with invalid ISBN (whitespace characters).
     """
@@ -69,7 +69,7 @@ def test_add_book_invalid_isbn_input_whitespace():
     # BUG: No error handling for when IBSN input is whitespace characters, so returns True instead. ISBN should only be digits and should be a string.
     assert success == False
 
-def test_add_book_invalid_isbn_input_not_digits():
+def test_add_book_invalid_isbn_input_not_digits(test_setup):
     """
     Test adding a book with invalid ISBN (not digits).
     """
