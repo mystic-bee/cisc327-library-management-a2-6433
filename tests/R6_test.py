@@ -1,7 +1,8 @@
 import pytest
 from library_service import search_books_in_catalog
+from conftest import test_setup
 
-def test_search_books_matching_title():
+def test_search_books_matching_title(test_setup):
     """
     Test searching a book with an exact matching title, partial matching title, and a non-matching title
     """
@@ -17,7 +18,7 @@ def test_search_books_matching_title():
     output3 = search_books_in_catalog("Non-Existing Title", "title")
     assert len(output3) == 0
 
-def test_search_books_matching_author():
+def test_search_books_matching_author(test_setup):
     """
     Test searching a book with an exact matching author, partial matching author, and a non-matching author
     """
@@ -33,7 +34,7 @@ def test_search_books_matching_author():
     output3 = search_books_in_catalog("Non-exiting Author", "author")
     assert len(output3) == 0
 
-def test_search_books_case_insensitive():
+def test_search_books_case_insensitive(test_setup):
     """
     Test searching a book with a partial matching title and author despite case-insensitivity
     """
@@ -53,14 +54,14 @@ def test_search_books_case_insensitive():
     output4 = search_books_in_catalog("f scOTt fItz", "author")
     assert len(output4) == 1
 
-def test_search_books_mismatching_types():
+def test_search_books_mismatching_types(test_setup):
     """
     Test searching a book with incorrectly matched search term and search type input
     """
     output = search_books_in_catalog("The Great Gatsby", "isbn")
     assert len(output) == 0
 
-def test_search_books_matching_isbn():
+def test_search_books_matching_isbn(test_setup):
     """
     Test searching a book with matching and non-matching isbn
     """

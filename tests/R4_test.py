@@ -1,6 +1,7 @@
 from database import get_db_connection
 import pytest
 from library_service import return_book_by_patron, borrow_book_by_patron, add_book_to_catalog
+from conftest import test_setup
 
 # Helper function to simulate test conditions
 def get_borrow_records(patron_id: str, book_id: int) -> None:
@@ -17,7 +18,7 @@ def get_borrow_records(patron_id: str, book_id: int) -> None:
     conn.close()
     return [dict(record) for record in records]
 
-def test_return_book_valid_input():
+def test_return_book_valid_input(test_setup):
     """
     Test returning a book with valid input
     """
@@ -29,14 +30,14 @@ def test_return_book_valid_input():
     success2, _ = return_book_by_patron("100005", 4)
     assert success2 == True
 
-def test_return_book_invalid_not_curr_borrowed():
+def test_return_book_invalid_not_curr_borrowed(test_setup):
     """
     Test having a patron return a book that they have not currently borrowed
     """
     success, _ = return_book_by_patron("100006", 5)
     assert success == False
 
-def test_return_book_update_available_copies():
+def test_return_book_update_available_copies(test_setup):
     """
     Test if available copies is updated after returning the book
     """
@@ -60,7 +61,7 @@ def test_return_book_update_available_copies():
     success5, _ = borrow_book_by_patron("100007", 6)
     assert success5 == True
 
-def test_return_book_update_return_Date():
+def test_return_book_update_return_date(test_setup):
     """
     Test if return date is updated after returning the book
     """

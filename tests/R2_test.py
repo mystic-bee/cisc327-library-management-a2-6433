@@ -5,9 +5,10 @@ Make a test for each of the attributes which should be present in the response o
 # Imports.
 from database import get_all_books
 from routes.catalog_routes import catalog
+from conftest import test_setup
 
 # Tests.
-def test_get_all_books_id():
+def test_get_all_books_id(test_setup):
     """ 
     Test if "id" is included in each returned row and is equal to an integer value. 
     """
@@ -19,7 +20,7 @@ def test_get_all_books_id():
         assert "id" in result.keys()
         assert type(result["id"]) == int
 
-def test_get_all_books_title():
+def test_get_all_books_title(test_setup):
     """ 
     Test if "title" is included in each returned row and is equal to a string value. 
     """
@@ -31,7 +32,7 @@ def test_get_all_books_title():
         assert "title" in result.keys()
         assert type(result["title"]) == str
 
-def test_get_all_books_author():
+def test_get_all_books_author(test_setup):
     """ 
     Test if "author" is included in each returned row and is equal to a string value. 
     """
@@ -43,7 +44,7 @@ def test_get_all_books_author():
         assert "author" in result.keys()
         assert type(result["author"]) == str
 
-def test_get_all_books_isbn():
+def test_get_all_books_isbn(test_setup):
     """ 
     Test if "isbn" is included in each returned row and is equal to a string value. 
     """
@@ -55,7 +56,7 @@ def test_get_all_books_isbn():
         assert "isbn" in result.keys()
         assert type(result["isbn"]) == str
 
-def test_get_all_books_total_copies():
+def test_get_all_books_total_copies(test_setup):
     """ 
     Test if "total_copies" is included in each returned row and is equal to an integer value. 
     """
@@ -67,7 +68,7 @@ def test_get_all_books_total_copies():
         assert "total_copies" in result.keys()
         assert type(result["total_copies"]) == int
 
-def test_get_all_books_available_copies():
+def test_get_all_books_available_copies(test_setup):
     """ 
     Test if "available_copies" is included in each returned row and is equal to an integer value. 
     """

@@ -25,6 +25,7 @@ from database import get_db_connection
 import pytest
 from library_service import get_patron_status_report
 from datetime import datetime, timedelta
+from conftest import test_setup
 
 # Helper function to simulate test conditions
 def add_row_to_borrowed_books(patron_id: str, book_id: int, borrow_date: datetime, due_date: datetime, return_date: datetime | None) -> None:
@@ -112,7 +113,7 @@ def add_row_to_borrowed_books(patron_id: str, book_id: int, borrow_date: datetim
 #     assert result["total_late_fees_owed"] == 7.50
 #     assert result["num_books_currently_borrowed"] == 0
 
-def test_get_patron_status_report_standard():
+def test_get_patron_status_report_standard(test_setup):
     """
     Test patron status for patron with a standard case
     """
@@ -131,7 +132,7 @@ def test_get_patron_status_report_standard():
     assert result["num_books_currently_borrowed"] == 1
     assert result["borrowing_history"][0]["book_id"] == 1
 
-def test_get_patron_status_report_no_borrowing_history():
+def test_get_patron_status_report_no_borrowing_history(test_setup):
     """
     Test patron status for patron with no borrowing history
     """
@@ -142,7 +143,7 @@ def test_get_patron_status_report_no_borrowing_history():
     assert result["total_late_fees_owed"] == 0.00
     assert result["num_books_currently_borrowed"] == 0
 
-def test_get_patron_status_report_multiple_late_fees():
+def test_get_patron_status_report_multiple_late_fees(test_setup):
     """
     Test patron status for patron with a borrowing history of multiple overdue books
     """
@@ -162,7 +163,7 @@ def test_get_patron_status_report_multiple_late_fees():
     assert result["total_late_fees_owed"] == 5.50
     assert result["num_books_currently_borrowed"] == 1
 
-def test_get_patron_status_report_no_curr_books():
+def test_get_patron_status_report_no_curr_books(test_setup):
     """
     Test patron status for patron with a borrowing history but no currently borrowed books
     """

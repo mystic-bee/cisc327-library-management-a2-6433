@@ -1,7 +1,8 @@
 import pytest
 from library_service import borrow_book_by_patron
+from conftest import test_setup
 
-def test_borrow_book_valid_input():
+def test_borrow_book_valid_input(test_setup):
     """
     Test borrowing a book with valid input
     """
@@ -10,7 +11,7 @@ def test_borrow_book_valid_input():
     assert success == True
     assert "Successfully borrowed" in message
 
-def test_borrow_book_invalid_patron_id():
+def test_borrow_book_invalid_patron_id(test_setup):
     """
     Test borrowing a book with invalid patron ID
     """
@@ -32,7 +33,7 @@ def test_borrow_book_invalid_patron_id():
     assert success3 == False
     assert "6 digits" in message3
 
-def test_borrow_book_invalid_book_doesnt_exist():
+def test_borrow_book_invalid_book_doesnt_exist(test_setup):
     """
     Test borrowing a book that does not exist
     """
@@ -41,7 +42,7 @@ def test_borrow_book_invalid_book_doesnt_exist():
     assert success == False
     assert "not found" in message
 
-def test_borrow_book_invalid_no_availability():
+def test_borrow_book_invalid_no_availability(test_setup):
     """
     Test borrowing a book that is not currently available (no available copies)
     """
@@ -50,7 +51,7 @@ def test_borrow_book_invalid_no_availability():
     assert success == False
     assert "not available" in message
 
-def test_borrow_book_invalid_exceeded_borrowing_limit():
+def test_borrow_book_invalid_exceeded_borrowing_limit(test_setup):
     """
     Test borrowing a book with patron that has exceeded the maximum borrowing limit of 5 books
     """
@@ -68,7 +69,7 @@ def test_borrow_book_invalid_exceeded_borrowing_limit():
     assert success == False
     assert "maximum borrowing limit" in message
 
-def test_borrow_book_update_available_copies():
+def test_borrow_book_update_available_copies(test_setup):
     """
     Test borrowing a book will update book availability and create a borrow record
     """
