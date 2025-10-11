@@ -149,7 +149,15 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     if not update_return_date:
         return False, "Database error occurred while updating book return date."
     
-    return True, "You have successfully returned your book. Thank you!"
+    # Calculates any late fees owed
+    calculate_fee = calculate_late_fee_for_book(patron_id, book_id)
+    late_fees = calculate_fee["fee_amount"]
+    days_late = calculate_fee["days_overdue"]
+
+    if late_fees == 0.00:
+        return True, f'You have successfully returned your book. There are no late fees on this book. Thank you!'
+    
+    return True, f'You have successfully returned your book. This book is {days_late} days late and you owe ${calculate_fee["fee_amount"]:.2f} in late fees for this book.'
 
 def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     """
@@ -175,6 +183,10 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     patron_current_books = get_patron_borrowed_books(patron_id)
 
     borrowed_book = [record for record in patron_current_books if record["book_id"] == book_id]
+
+    # Check if no borrowed books
+    if not borrowed_book:
+        return {"fee_amount": 0.00, "days_overdue": 0}
 
     for book in borrowed_book:
         overdue_status = book["is_overdue"]
@@ -242,13 +254,23 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
                 search_results.append(b)
 
         # Support partial matching for title (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
+        # elif search_type == "title":
+        #     if "title" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["title"].lower()):
+        #         search_results.append(b)
+        
+        # Support partial matching for title (case-insensitive)
         elif search_type == "title":
-            if "title" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["title"].lower()):
+            if "title" in b and search_term.lower() in b["title"].lower():
                 search_results.append(b)
 
         # Support partial matching for author (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
+        # elif search_type == "author":
+        #     if "author" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["author"].lower()):
+        #         search_results.append(b)
+
+        # Support partial matching for author (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
         elif search_type == "author":
-            if "author" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["author"].lower()):
+            if "author" in b and search_term.lower() in b["author"].lower():
                 search_results.append(b)
 
     return search_results

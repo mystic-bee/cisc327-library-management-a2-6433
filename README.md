@@ -1,6 +1,7 @@
 # Library Management System - Flask Web Application with SQLite
 
 [![CI](https://github.com/mystic-bee/cisc327-library-management-a2-6433/actions/workflows/ci.yaml/badge.svg)](https://github.com/mystic-bee/cisc327-library-management-a2-6433/actions/workflows/ci.yaml)
+[![codecov](https://codecov.io/gh/mystic-bee/cisc327-library-management-a2-6433/graph/badge.svg?token=R1WLMMF8QD)](https://codecov.io/gh/mystic-bee/cisc327-library-management-a2-6433)
 
 ## Overview
 
