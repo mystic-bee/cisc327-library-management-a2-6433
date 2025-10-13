@@ -1,7 +1,8 @@
 from database import get_db_connection
 import pytest
-from library_service import return_book_by_patron, borrow_book_by_patron, add_book_to_catalog
+from library_service import return_book_by_patron, borrow_book_by_patron, add_book_to_catalog, calculate_late_fee_for_book
 from conftest import test_setup
+from datetime import timedelta, datetime
 
 # Helper function to simulate test conditions
 def get_borrow_records(patron_id: str, book_id: int) -> None:
@@ -17,6 +18,23 @@ def get_borrow_records(patron_id: str, book_id: int) -> None:
     )).fetchall()
     conn.close()
     return [dict(record) for record in records]
+
+def add_row_to_borrowed_books(patron_id: str, book_id: int, borrow_date: datetime, due_date: datetime) -> None:
+    """ 
+    Add a row to the borrow_records database. 
+    """
+    conn = get_db_connection()
+    conn.execute('''
+    INSERT INTO borrow_records (patron_id, book_id, borrow_date, due_date)
+    VALUES (?, ?, ?, ?)
+    ''', (
+        patron_id, 
+        book_id, 
+        borrow_date,
+        due_date
+    ))
+    conn.commit()
+    conn.close()
 
 def test_return_book_valid_input(test_setup):
     """
@@ -81,3 +99,22 @@ def test_return_book_update_return_date(test_setup):
     results = get_borrow_records("100008", 4)
     assert len(results) == 1
     assert results[0]["return_date"] is not None
+
+def test_return_book_successfully_late(test_setup):
+    """
+    Test if correct message with late fee amount and days overdue is displayed when successfully returning a book that was overdue
+    """
+
+    # Add book to the database that is 10 days overdue
+    add_row_to_borrowed_books(patron_id="100009", book_id=1, borrow_date=datetime.today() - timedelta(days=24), due_date=datetime.today() - timedelta(days=10))
+
+    result = calculate_late_fee_for_book("100009", 1)
+
+    assert result["fee_amount"] == 6.50
+    assert result["days_overdue"] == 10
+
+    # Return that book
+    success1, message1 = return_book_by_patron("100009", 1)
+    assert success1 == True
+    assert "You have successfully returned your book. This book is 10 days late and you owe $6.50 in late fees for this book." in message1
+

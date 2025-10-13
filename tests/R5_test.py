@@ -75,3 +75,12 @@ def test_late_fee_calculation_no_late_books(test_setup):
     assert result["fee_amount"] == 0.00
     assert result["days_overdue"] == 0
     
+def test_late_fee_calculation_invalid_book(test_setup):
+    """
+    Testing late fee calculation for a book that is not currently borrowed
+    """
+    result = calculate_late_fee_for_book("111115", 1)
+    
+    # 0 days overdue = 0.00
+    assert result["fee_amount"] == 0.00
+    assert result["days_overdue"] == 0

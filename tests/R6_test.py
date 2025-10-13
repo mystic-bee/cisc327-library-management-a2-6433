@@ -65,5 +65,3 @@ def test_search_books_matching_isbn(test_setup):
     # Test non-matching isbn
     output2 = search_books_in_catalog("978074", "isbn")
     assert len(output2) == 0
-    
-

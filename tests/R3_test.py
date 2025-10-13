@@ -73,7 +73,6 @@ def test_borrow_book_invalid_exceeded_borrowing_limit(test_setup):
     # Borrow 6th book --> should return False
     success, message = borrow_book_by_patron("100003", 9)
 
-    # BUG: Patron can borrow up to 6 books because of logic error in borrow_book_by_patron(), which means borrowing the 6th book returns True (hence the AssertionError).
     assert success == False
     assert "maximum borrowing limit" in message
 
@@ -96,3 +95,18 @@ def test_borrow_book_update_available_copies(test_setup):
 
     assert success2 == False
     assert "not available" in message2
+
+def test_borrow_book_another_copy(test_setup):
+    """
+    Test borrowing another copy of a book that is already currently borrowed
+    """
+    # Add a book
+    _, _ = add_book_to_catalog("Only One Copy", "Grabby Patty", "1000000000002", 19)
+
+    # Have same patron borrow same book twice
+    _, _ = borrow_book_by_patron("100020", 4)
+    success1, message1 = borrow_book_by_patron("100020", 4)
+    
+    # Checking to see that patron is only allowed to borrow one copy at a time
+    assert success1 == False
+    assert "already borrowed a copy" in message1.lower()

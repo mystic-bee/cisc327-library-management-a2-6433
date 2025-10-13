@@ -264,7 +264,7 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
             if "title" in b and search_term.lower() in b["title"].lower():
                 search_results.append(b)
 
-        # Support partial matching for author (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
+        # Support partial matching for author (case-insensitive)
         elif search_type == "author":
             if "author" in b and search_term.lower() in b["author"].lower():
                 search_results.append(b)
@@ -354,6 +354,3 @@ def get_patron_status_report(patron_id: str) -> Dict:
         "num_books_currently_borrowed": num_currently_borrowed, 
         "borrowing_history": borrowing_history
     }
-
-if __name__ == "__main__":
-    return_book_by_patron("111118", 2)

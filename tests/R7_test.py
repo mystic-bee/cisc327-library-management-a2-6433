@@ -168,9 +168,10 @@ def test_get_patron_status_report_overdue_books(test_setup):
     Test patron status for patron with current overdue books
     """
 
+    # Add currently borrowed book that is overdue by 9 days
     add_row_to_borrowed_books(patron_id="111118", book_id=1, borrow_date=datetime.today() - timedelta(days=23), due_date=datetime.today() - timedelta(days=9), return_date=None)
 
-    # Current overdue book
+    # Add currently borrowed book that is overdue by 30 days
     add_row_to_borrowed_books(patron_id="111118", book_id=2, borrow_date=datetime.today() - timedelta(days=44), due_date=datetime.today() - timedelta(days=30), return_date=None)
 
     result = get_patron_status_report(patron_id="111118")
