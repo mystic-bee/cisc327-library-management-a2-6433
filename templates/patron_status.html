@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>👤 Patron Status</h2>
+<p>View your patron status report.</p>
+
+<form method="GET" action="{{ url_for('patron.patron_status') }}">
+    <div class="form-group">
+        <label for="patron_id">Patron ID:</label>
+        <input type="text" id="patron_id" name="patron_id" value="{{ patron_id }}" required>
+        <small style="color: #666;">6-digit library card number</small>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn">🔍 Search</button>
+        <a href="{{ url_for('catalog.catalog') }}" class="btn" style="margin-left: 10px;">Back to Catalog</a>
+    </div>
+</form>
+
+{% if patron_id %}
+    <hr style="margin: 30px 0;">
+    
+    <h3>Patron Status Report for Patron #{{ patron_id }}</h3>
+    
+    <h4>Currently Borrowed Books</h4>
+    {% if patron_info.curr_borrowed_books %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Book ID</th>
+                    <th>Book Title</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for curr_book in patron_info.curr_borrowed_books %}
+                <tr>
+                    <td>{{ curr_book.book_id }}</td>
+                    <td>{{ curr_book.title }}</td>
+                    <td>{{ curr_book.borrow_date }}</td>
+                    <td>{{ curr_book.due_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <h4>No books currently borrowed</h4>
+        </div>
+    {% endif %}
+
+    <h4>Number of Books Currently Borrowed:</h4>
+    <p>{{ patron_info.num_books_currently_borrowed }}</p>
+
+    <h4>Total Late Fees Owed:</h4>
+    <p>${{ '{:.2f}'.format(patron_info.total_late_fees_owed) }}</p>
+
+    <h4>Borrowing History</h4>
+    {% if patron_info.borrowing_history %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Book ID</th>
+                    <th>Book Title</th>
+                    <th>Return Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in patron_info.borrowing_history %}
+                <tr>
+                    <td>{{ record.book_id }}</td>
+                    <td>{{ record.title }}</td>
+                    <td>{{ record.return_date if record.return_date else "Not Returned"}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <h4>No borrowing history</h4>
+        </div>
+    {% endif %}
+
+{% endif %}
+
+{% endblock %}

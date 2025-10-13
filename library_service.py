@@ -90,6 +90,12 @@ def borrow_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     if book['available_copies'] <= 0:
         return False, "This book is currently not available."
     
+    # Check if patron is trying to borrow a copy of a book that they have currently borrowed
+    patron_curr_books = get_patron_borrowed_books(patron_id)
+    for curr_book in patron_curr_books:
+        if curr_book["book_id"] == book_id:
+            return False, "You have already borrowed a copy of this book."
+    
     # Check patron's current borrowed books count
     current_borrowed = get_patron_borrow_count(patron_id)
     
@@ -141,6 +147,11 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     if not availability_success:
         return False, "Database error occurred while updating book availability."
     
+    # Calculates any late fees owed
+    calculate_fee = calculate_late_fee_for_book(patron_id, book_id)
+    late_fees = calculate_fee["fee_amount"]
+    days_late = calculate_fee["days_overdue"]
+
     # Update return date
     return_date = datetime.now()
     
@@ -148,11 +159,6 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
     update_return_date = update_borrow_record_return_date(patron_id, book_id, return_date)
     if not update_return_date:
         return False, "Database error occurred while updating book return date."
-    
-    # Calculates any late fees owed
-    calculate_fee = calculate_late_fee_for_book(patron_id, book_id)
-    late_fees = calculate_fee["fee_amount"]
-    days_late = calculate_fee["days_overdue"]
 
     if late_fees == 0.00:
         return True, f'You have successfully returned your book. There are no late fees on this book. Thank you!'
@@ -252,21 +258,11 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
         if search_type == "isbn":
             if "isbn" in b and b["isbn"] == search_term:
                 search_results.append(b)
-
-        # Support partial matching for title (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
-        # elif search_type == "title":
-        #     if "title" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["title"].lower()):
-        #         search_results.append(b)
         
         # Support partial matching for title (case-insensitive)
         elif search_type == "title":
             if "title" in b and search_term.lower() in b["title"].lower():
                 search_results.append(b)
-
-        # Support partial matching for author (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
-        # elif search_type == "author":
-        #     if "author" in b and re.sub(r'[^a-z0-9]', '', search_term.lower()) in re.sub(r'[^a-z0-9]', '', b["author"].lower()):
-        #         search_results.append(b)
 
         # Support partial matching for author (case-insensitive, also added compatibility for partial matching when missing punctuation or spaces, etc.)
         elif search_type == "author":
@@ -287,6 +283,8 @@ def get_patron_status_report(patron_id: str) -> Dict:
         Dict: {
             "curr_borrowed_books": List[Dict]: {
                 "book_id": int,
+                "title": str,
+                "borrow_date": datetime,
                 "due_date": datetime
                 },
 
@@ -296,7 +294,7 @@ def get_patron_status_report(patron_id: str) -> Dict:
             
             "borrowing_history" List[Dict]: {
                 "book_id": int,
-                "borrow_date": datetime,
+                "title": str,
                 "return_date": datetime
                 }
             }
@@ -318,6 +316,8 @@ def get_patron_status_report(patron_id: str) -> Dict:
     for books in patron_current_books:
         currently_borrowed.append({
             "book_id": books.get("book_id"),
+            "title": books.get("title"),
+            "borrow_date": books.get("borrow_date"),
             "due_date": books.get("due_date")
         })
 
@@ -331,7 +331,7 @@ def get_patron_status_report(patron_id: str) -> Dict:
     
     overdue_fees = []
     for fee_amt in book_fees:
-        overdue_fees.append(fee_amt.get("fee_amount"))
+        overdue_fees.append(float(fee_amt.get("fee_amount")))
     
     total_overdue = sum(overdue_fees)
 
@@ -342,14 +342,18 @@ def get_patron_status_report(patron_id: str) -> Dict:
     for item in patron_all_books:
         borrowing_history.append({
             "book_id": item.get("book_id"),
-            "borrow_date": item.get("borrow_date"),
+            "title":item.get("title"),
             "return_date": item.get("return_date")
         })
 
+    total_overdue_rounded = round(total_overdue, 2)
+
     return {
         "curr_borrowed_books": currently_borrowed, 
-        "total_late_fees_owed": total_overdue, 
+        "total_late_fees_owed": total_overdue_rounded, 
         "num_books_currently_borrowed": num_currently_borrowed, 
         "borrowing_history": borrowing_history
     }
 
+if __name__ == "__main__":
+    return_book_by_patron("111118", 2)

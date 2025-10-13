@@ -55,17 +55,23 @@ def test_borrow_book_invalid_exceeded_borrowing_limit(test_setup):
     """
     Test borrowing a book with patron that has exceeded the maximum borrowing limit of 5 books
     """
-    _, _ = add_book_to_catalog("Testing Borrowing Limits", "Test Author", "9876543210987", 10)
+    # Add 6 books to catalog
+    _, _ = add_book_to_catalog("Testing Borrowing Limits 1", "Test Author 1", "1010101010101", 10)
+    _, _ = add_book_to_catalog("Testing Borrowing Limits 2", "Test Author 2", "1010101010102", 10)
+    _, _ = add_book_to_catalog("Testing Borrowing Limits 3", "Test Author 3", "1010101010103", 10)
+    _, _ = add_book_to_catalog("Testing Borrowing Limits 4", "Test Author 4", "1010101010104", 10)
+    _, _ = add_book_to_catalog("Testing Borrowing Limits 5", "Test Author 5", "1010101010105", 10)
+    _, _ = add_book_to_catalog("Testing Borrowing Limits 6", "Test Author 6", "1010101010106", 10)
 
     # Borrow 5 books
     _, _ = borrow_book_by_patron("100003", 4)
-    _, _ = borrow_book_by_patron("100003", 4)
-    _, _ = borrow_book_by_patron("100003", 4)
-    _, _ = borrow_book_by_patron("100003", 4)
-    _, _ = borrow_book_by_patron("100003", 4)
+    _, _ = borrow_book_by_patron("100003", 5)
+    _, _ = borrow_book_by_patron("100003", 6)
+    _, _ = borrow_book_by_patron("100003", 7)
+    _, _ = borrow_book_by_patron("100003", 8)
 
     # Borrow 6th book --> should return False
-    success, message = borrow_book_by_patron("100003", 4)
+    success, message = borrow_book_by_patron("100003", 9)
 
     # BUG: Patron can borrow up to 6 books because of logic error in borrow_book_by_patron(), which means borrowing the 6th book returns True (hence the AssertionError).
     assert success == False
@@ -75,17 +81,18 @@ def test_borrow_book_update_available_copies(test_setup):
     """
     Test borrowing a book will update book availability and create a borrow record
     """
+    # Add book with 1 copy
+    _, _ = add_book_to_catalog("Copies Copies Copies", "Author Test", "1000000000001", 1)
 
-    # Borrow book (book_id = 2) twice so that this book no longer has any available copies
-    _, _ = borrow_book_by_patron("100004", 2)
-    success1, message1 = borrow_book_by_patron("100004", 2)
+    # Borrow book with 1 copy so that it no longer has any available copies
+    success1, message1 = borrow_book_by_patron("100004", 4)
     
-    # Checking to see that the second copy was borrowed successfully
+    # Checking to see that the book was borrowed successfully
     assert success1 == True
     assert "Successfully borrowed" in message1
 
-    # Borrow same book again, which should return False. Thus showing that book availability is being updated, which means a borrowing record is being record is being created.
-    success2, message2 = borrow_book_by_patron("100004", 2)
+    # Have another patron try to borrow that book with no available copies
+    success2, message2 = borrow_book_by_patron("100005", 4)
 
     assert success2 == False
     assert "not available" in message2

@@ -152,13 +152,19 @@ def get_all_patron_record(patron_id: str) -> List[Dict]:
     
     borrow_record = []
     for record in records:
+
+        return_date = record['return_date']
+        # Return date handling: only convert to datetime if it exists
+        if return_date:
+            return_date = datetime.fromisoformat(return_date)
+
         borrow_record.append({
             'book_id': record['book_id'],
             'title': record['title'],
             'author': record['author'],
             'borrow_date': datetime.fromisoformat(record['borrow_date']),
             'due_date': datetime.fromisoformat(record['due_date']),
-            'is_overdue': datetime.now() > datetime.fromisoformat(record['due_date'])
+            'return_date': return_date
         })
     
     return borrow_record
