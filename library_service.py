@@ -130,12 +130,6 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
         tuple: (success: bool, message: str)
     """
 
-    # The system shall provide a return interface that includes:
-    # - Accepts patron ID and book ID as form parameters
-    # - Verifies the book was borrowed by the patron
-    # - Updates available copies and records return date
-    # - Calculates and displays any late fees owed
-
     patron_current_books = get_patron_borrowed_books(patron_id)
 
     borrowed_book = [record for record in patron_current_books if record["book_id"] == book_id]
@@ -177,14 +171,6 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
     Returns:
         dict: {"fee_amount": float, "days_overdue": int}
     """
-
-    # The system shall provide an API endpoint GET `/api/late_fee/<patron_id>/<book_id>` that includes the following.
-    # - Calculates late fees for overdue books based on:
-    #   - Books due 14 days after borrowing
-    #   - $0.50/day for first 7 days overdue
-    #   - $1.00/day for each additional day after 7 days
-    #   - Maximum $15.00 per book
-    # - Returns JSON response with fee amount and days overdue
 
     patron_current_books = get_patron_borrowed_books(patron_id)
 
@@ -240,13 +226,6 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
     Returns:
         List[Dict]: [{"id": int, "title": str, "author": str, "isbn": str, "total_copies": int, "available_copies": int}]
     """
-
-    # The system shall provide search functionality with the following parameters:
-    # - `q`: search term
-    # - `type`: search type (title, author, isbn)
-    # - Support partial matching for title/author (case-insensitive)
-    # - Support exact matching for ISBN
-    # - Return results in same format as catalog display
     
     all_books = get_all_books()
 
@@ -281,33 +260,24 @@ def get_patron_status_report(patron_id: str) -> Dict:
     
     Returns:
         Dict: {
-            "curr_borrowed_books": List[Dict]: {
+            "curr_borrowed_books": List[Dict]: [{
                 "book_id": int,
                 "title": str,
                 "borrow_date": datetime,
                 "due_date": datetime
-                },
+                }],
 
             "total_late_fees_owed": float, 
             
             "num_books_currently_borrowed": int, 
             
-            "borrowing_history" List[Dict]: {
+            "borrowing_history" List[Dict]: [{
                 "book_id": int,
                 "title": str,
                 "return_date": datetime
-                }
+                }]
             }
     """
-
-    # The system shall display patron status for a particular patron that includes the following: 
-
-    # - Currently borrowed books with due dates
-    # - Total late fees owed  
-    # - Number of books currently borrowed
-    # - Borrowing history
-
-    # **Note**: There should be a menu option created for showing the patron status in the main interface
 
     patron_current_books = get_patron_borrowed_books(patron_id)
 
@@ -335,6 +305,7 @@ def get_patron_status_report(patron_id: str) -> Dict:
     
     total_overdue = sum(overdue_fees)
 
+    # Get patron's borrowing record (past and present)
     patron_all_books = get_all_patron_record(patron_id)
 
     # Borrowing history
@@ -346,6 +317,7 @@ def get_patron_status_report(patron_id: str) -> Dict:
             "return_date": item.get("return_date")
         })
 
+    # Round overdue amt to two decimal places
     total_overdue_rounded = round(total_overdue, 2)
 
     return {

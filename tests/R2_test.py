@@ -1,8 +1,3 @@
-"""
-Make a test for each of the attributes which should be present in the response of `get_all_books`.
-"""
-
-# Imports.
 from database import get_all_books
 from routes.catalog_routes import catalog
 from conftest import test_setup
