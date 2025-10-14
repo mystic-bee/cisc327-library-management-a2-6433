@@ -53,7 +53,7 @@ def test_get_patron_status_report_no_borrowing_history(test_setup):
     assert result["total_late_fees_owed"] == 0.00
     assert result["num_books_currently_borrowed"] == 0
 
-def test_get_patron_status_report_multiple_late_fees(test_setup):
+def test_get_patron_status_report_borrow_history_no_current(test_setup):
     """
     Test patron status for patron with borrowing history but no currently borrowed books that are overdue
     """
