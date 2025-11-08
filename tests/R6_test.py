@@ -1,5 +1,5 @@
 import pytest
-from library_service import search_books_in_catalog
+from services.library_service import search_books_in_catalog
 from conftest import test_setup
 
 def test_search_books_matching_title(test_setup):
