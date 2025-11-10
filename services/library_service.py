@@ -204,7 +204,17 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
         return {"fee_amount": overdue_amt, "days_overdue": num_days_overdue}
     
     # $1.00/day for each additional day after 7 days
-    elif (num_days_overdue > 7):
+    # elif (num_days_overdue > 7):
+    #     overdue_amt = (7 * 0.50) + ((num_days_overdue - 7) * 1.00)
+
+    #     if overdue_amt < 15.00:
+    #         return {"fee_amount": overdue_amt, "days_overdue": num_days_overdue}
+        
+    #     # Maximum $15.00 late fee
+    #     else:
+    #         return {"fee_amount": 15.00, "days_overdue": num_days_overdue}
+
+    else:
         overdue_amt = (7 * 0.50) + ((num_days_overdue - 7) * 1.00)
 
         if overdue_amt < 15.00:
@@ -245,7 +255,7 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
                 search_results.append(b)
 
         # Support partial matching for author (case-insensitive)
-        elif search_type == "author":
+        else:
             if "author" in b and search_term.lower() in b["author"].lower():
                 search_results.append(b)
 
